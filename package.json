@@ -6,8 +6,9 @@
   "scripts": {
     "dev": "nodemon",
     "start": "ts-node ./src/index.ts",
-    "build": "rimraf ./build && tsc"
+    "postinstall": "tsc"
   },
+  "engines": { "node": "12.19.0" },
   "keywords": [],
   "author": "",
   "license": "ISC",
