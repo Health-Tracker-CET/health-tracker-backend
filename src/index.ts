@@ -3,15 +3,10 @@ import mongoose from 'mongoose';
 import Router from './Routes/Routes';
 const dotenv = require('dotenv').config();
 const app = express();
-<<<<<<< Updated upstream
-const PORT = process.env.PORT || 3000  ;
-
-=======
-const PORT = 3000 || process.env.PORT;
+const PORT = process.env.PORT || 3000;
 const KEY = process.env.THINK_SPEAK_API_KEY;
 const DB_URI = process.env.DB_URI;
 const db = mongoose.connection;
->>>>>>> Stashed changes
 app.use(express.json());
 app.use(express.urlencoded({extended : false}));
 
