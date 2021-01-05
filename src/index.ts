@@ -1,7 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import Router from './Routes/Routes';
-const dotenv = require('dotenv').config();
+// const dotenv = require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 const KEY = process.env.THINK_SPEAK_API_KEY;
