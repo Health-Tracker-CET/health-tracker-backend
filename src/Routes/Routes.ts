@@ -3,6 +3,6 @@ import { getBodyData } from '../Controller/Controller';
 
 const router = Router();
 
-router.post('/data', getBodyData);
+router.get('/data', getBodyData);
 
 export default router;
