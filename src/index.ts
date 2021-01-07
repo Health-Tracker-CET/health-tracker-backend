@@ -24,7 +24,8 @@ const KEY = process.env.THINK_SPEAK_API_KEY;
 const DB_URI = process.env.DB_URI;
 
 const db = mongoose.connection;
-
+let interval: NodeJS.Timeout;
+let interval2: NodeJS.Timeout;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({extended : false}));
@@ -35,27 +36,33 @@ db.once('open', () => {
     console.log(`Connected to database...`);
     
 
-    io.on('connection', (socket : any) => {
-        const job = cron.schedule('*/10 * * * * *', async () => {
-            //Insert a document every 1 minute about temp and pulse
-            const newTemp = new TempModel({
-                bodyPulse : randomNumber(60, 90),
-                bodyTemp : randomNumber(35, 39)
-            });
-    
-            const doc = await newTemp.save();
-            if(doc) {
-                console.log(doc + "\n ---------------");
-                socket.emit('Temp', doc)
-            }
+    io.on('connection', async (socket : any) => {       
+        console.log('User Connected'); 
+        // Return the first 5 recent temp readings to the user
+        interval2 = setInterval(async () => {
+            const data = await TempModel.find({}).sort({createdAt: -1}).limit(10);
+            
+            socket.emit('Temp', data);
+            
+        }, 1000);
             
             
-        });
+            
+        
 
         socket.on('disconnect', () => {
-            job.destroy();
+            console.log('User disconnected');
         })
-    })
+    });
+
+    interval = setInterval(async () => {
+        const newTemp = new TempModel({
+            bodyTemp : randomNumber(35, 39),
+            bodyPulse : randomNumber(45, 90)
+        })
+
+        await newTemp.save();
+    }, 1000);
 })
 
 
@@ -72,6 +79,16 @@ server.listen(PORT, () => {
 })
 
 
+server.on('close', function() {
+    clearInterval(interval);
+    clearInterval(interval2);
+});
+
+
+process.on('exit', () => {
+    clearInterval(interval);
+    clearInterval(interval2);
+})
 
 
 
