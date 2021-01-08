@@ -5,8 +5,6 @@ import TempModel from './Model/TempModel';
 import mongoose from 'mongoose';
 import Router from './Routes/Routes';
 import http from 'http';
-import cron from 'node-cron';
-
 
 const socket = require('socket.io');
 const app = express();

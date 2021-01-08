@@ -30,6 +30,8 @@
   },
   "dependencies": {
     "express": "^4.17.1",
+    "firebase": "^8.2.2",
+    "firebase-admin": "^9.4.2",
     "mongoose": "^5.11.9",
     "node-cron": "^2.0.3",
     "node-fetch": "^2.6.1",
