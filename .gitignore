@@ -1,3 +1,5 @@
 node_modules
 build
 .env
+service-account.json
+./src/firebaseConfig.ts
