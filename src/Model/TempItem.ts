@@ -1,3 +1,5 @@
+// Temp object for getting and setting new bodyTemp and bodyPulse
+
 class TempItem {
     bodyTemp : number;
     bodyPulse : number;
