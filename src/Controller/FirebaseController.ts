@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import admin from "../setUpFirebaseAdmin";
 import UserModel from "../Model/UserModel";
 import firebase from "../setUpFirebase";
+import { error } from "console";
 
 function createUser(req: Request, res: Response): void {
   const { email, password, name } = req.body;
@@ -20,7 +21,6 @@ function createUser(req: Request, res: Response): void {
         const newUser = new UserModel({
           email: userRecord.email,
           name: userRecord.displayName,
-          verified: false,
           uid: userRecord.uid,
         });
   
@@ -61,11 +61,12 @@ function loginUser(req: Request, res: Response) {
   firebase
     .auth()
     .signInWithEmailAndPassword(email, password)
-    .then((user:any) => {
+    .then(async(user:any) => {
       // Signed in 
       // ...
       if(!user.emailVerified){
-          res.status(403).json({error:true,message:"User not verified please verify"})
+          await firebase.auth().currentUser.sendEmailVerification();
+          res.status(403).json({error:true,message:"User not verified.Verification email sent"});
       }else {
         res.status(200).json({ error:false, message:user});
       }
@@ -75,7 +76,71 @@ function loginUser(req: Request, res: Response) {
     });
 }
 
+function changePassword(req:Request,res:Response) {
+  const {email} = req.body;
+  firebase
+    .auth()
+    .sendPasswordResetEmail(email)
+    .then(()=>{
+      res.status(200).json({error:false,message:"Password change request received successfully"});
+    })
+    .catch((error:Error)=>{
+      res.status(500).json({error:true,message:"Some error encountered or email doesn't exists"});
+    })
+}
+
+async function getUsers (req:Request,res:Response) {
+  const {name,uid} = req.body;
+  try {
+    if (!(name ||uid)) {
+      const query = UserModel.find({}).select('name email uid');
+      query.exec((err:Error,users:any)=>{
+        if(err){
+          res.status(500).json({error:true,message:"some database error"});    
+        }
+        res.status(200).json({error:false,message:users});    
+  
+      })
+    
+    }
+
+    if((name)){
+      UserModel.find({ name })
+        .select("name email uid")
+        .exec((err:Error,users:any)=>{
+          if(err){
+            res.status(500).json({error:true,message:"some database error"});    
+          }
+
+          res.status(200).json({error:false,message:{users}});    
+    
+        })
+    } else if((uid)) {
+      
+        UserModel.find({ uid })
+          .select("name email uid")
+          .exec((err:Error,users:any)=>{
+            if(err){
+              res.status(500).json({error:true,message:"some database error"});    
+            }
+  
+            res.status(200).json({error:false,message:{users}});    
+      
+          })
+    }
+    
+  } catch (error) {
+    res.status(500).json({error:true,message:error.message});    
+  }
+}
+
 export = {
   createUser,
-  loginUser
+  loginUser,
+  changePassword,
+  getUsers
 };
+
+
+// name
+// uid
