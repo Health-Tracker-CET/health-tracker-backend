@@ -57,14 +57,14 @@ function createUser(req: Request, res: Response): void {
 
 function loginUser(req: Request, res: Response) {
   const { email, password } = req.body;
-  
   firebase
     .auth()
     .signInWithEmailAndPassword(email, password)
     .then((user:any) => {
+      console.log(user);
       // Signed in 
       // ...
-      if(!user.emailVerified){
+      if(user.emailVerified === false){
           res.status(403).json({error:true,message:"User not verified please verify"})
       }else {
         res.status(200).json({ error:false, message:user});
