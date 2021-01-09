@@ -1,13 +1,11 @@
-class UserModel {
+class User {
     name: string;
     email: string;
-    verified: boolean;
     uid: string;
 
-    constructor(name: string,email:string,verified:boolean,uid:string) {
+    constructor(name: string,email:string,uid:string) {
         this.name = name;
         this.email = email;
-        this.verified = verified;
         this.uid = uid;
     }
 
@@ -21,9 +19,5 @@ class UserModel {
 
     public getUid() : string {
         return this.uid;
-    }
-
-    public isVerified() : boolean {
-        return this.verified;
     }
 }
