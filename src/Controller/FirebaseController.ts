@@ -61,7 +61,6 @@ function loginUser(req: Request, res: Response) {
     .auth()
     .signInWithEmailAndPassword(email, password)
     .then((user:any) => {
-      console.log(user);
       // Signed in 
       // ...
       if(user.emailVerified === false){
@@ -71,6 +70,7 @@ function loginUser(req: Request, res: Response) {
       }
     })
     .catch((error:Error) => {
+      console.log(error.message);  
         res.status(500).json({ error:true, message:error.message})
     });
 }

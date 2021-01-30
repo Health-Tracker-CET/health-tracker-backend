@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 import Router from './Routes/Routes';
 import http from 'http';
 import cors from 'cors';
+const logger = require("morgan");
 const socket = require('socket.io');
 const dotenv = require('dotenv').config();
 
@@ -42,6 +43,7 @@ let interval2: NodeJS.Timeout;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({extended : false}));
+app.use(logger('dev'));
 
 // Connection to the mongoDb server
 mongoose.connect(DB_URI!, ({useNewUrlParser : true, useUnifiedTopology : true}));
