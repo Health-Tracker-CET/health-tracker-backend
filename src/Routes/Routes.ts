@@ -7,7 +7,7 @@ import  firebaseController  from '../Controller/FirebaseController';
 const router = Router();
 
 // Get body data and insert it to the db
-router.get('/data', getBodyData);
+// router.get('/data', getBodyData);
 // Create a new user 
 router.post('/create-user',firebaseController.createUser);
 // Login an user

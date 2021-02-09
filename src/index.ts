@@ -1,13 +1,15 @@
 // Imports
-import express from 'express';
+require('dotenv').config();
+import express, { Request, Response } from 'express';
 import TempModel from './Model/TempModel';
 import mongoose from 'mongoose';
 import Router from './Routes/Routes';
 import http from 'http';
 import cors from 'cors';
+import {Socket} from 'socket.io'
+import { getBodyData } from './Controller/Controller';
 const logger = require("morgan");
 const socket = require('socket.io');
-const dotenv = require('dotenv').config();
 
 // Init the app variable for express server
 const app = express();
@@ -52,42 +54,35 @@ mongoose.connect(DB_URI!, ({useNewUrlParser : true, useUnifiedTopology : true}))
 db.once('open', () => {
     // If this fucntion is run then the db is connected to successfully
     console.log(`Connected to database...`);
-    
-    // Socket event for client connection to the server
-    io.on('connection', async (socket : any) => {       
-        console.log('User Connected'); 
-        // Return the first 5 recent temp readings to the user
-        interval2 = setInterval(async () => {
-            const data = await TempModel.find({}).sort({createdAt: -1}).limit(10);
-            
-            // Emit temp event of the 10 most recent data from the Collection
-            // TO-DO Set an expiry for the documents else it will cause the storage to run out
-            socket.emit('Temp', data);
-            
-        }, 1000);
-            
-            
-            
-        
-        // Listen for socket client disconnects 
-        socket.on('disconnect', () => {
-            console.log('User disconnected');
-        })
-    });
 
-    interval = setInterval(async () => {
-        // Create a new temp document from random temp and pulse
-        // Ideally this should be read from the IOT device 
-        // and not be randomly generated
-        const newTemp = new TempModel({
-            bodyTemp : randomNumber(35, 39),
-            bodyPulse : randomNumber(45, 90)
-        })
 
-        // Save the newly created Doc
-        await newTemp.save();
-    }, 1000);
+    // interval = setInterval(async () => {
+    //     // Create a new temp document from random temp and pulse
+    //     // Ideally this should be read from the IOT device 
+    //     // and not be randomly generated
+    //     const newTemp = new TempModel({
+    //         bodyTemp : randomNumber(35, 39),
+    //         bodyPulse : randomNumber(45, 90)
+    //     })
+
+    //     // Save the newly created Doc
+    //     await newTemp.save();
+    // }, 1000);
 })
+
+ // Socket event for client connection to the server
+ io.on("connection", async (socket: Socket) => {
+    console.log("User Connected");
+
+
+    app.use("/api/data",(req: Request,res: Response)=>{
+        getBodyData(req,res,io);
+    })
+    // Listen for socket client disconnects
+    socket.on("disconnect", () => {
+      console.log("User disconnected");
+    });
+  });
 
 
 // As react is used as the client
@@ -109,14 +104,14 @@ server.listen(PORT, () => {
 // memory leaks
 // Cron job was previously used but it was difficult to shut it down
 server.on('close', function() {
-    clearInterval(interval);
-    clearInterval(interval2);
+    // clearInterval(interval);
+    // clearInterval(interval2);
 });
 
 
 process.on('exit', () => {
-    clearInterval(interval);
-    clearInterval(interval2);
+    // clearInterval(interval);
+    // clearInterval(interval2);
 })
 
 
