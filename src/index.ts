@@ -55,19 +55,6 @@ db.once('open', () => {
     // If this fucntion is run then the db is connected to successfully
     console.log(`Connected to database...`);
 
-
-    // interval = setInterval(async () => {
-    //     // Create a new temp document from random temp and pulse
-    //     // Ideally this should be read from the IOT device 
-    //     // and not be randomly generated
-    //     const newTemp = new TempModel({
-    //         bodyTemp : randomNumber(35, 39),
-    //         bodyPulse : randomNumber(45, 90)
-    //     })
-
-    //     // Save the newly created Doc
-    //     await newTemp.save();
-    // }, 1000);
 })
 
  // Socket event for client connection to the server
@@ -100,19 +87,6 @@ server.listen(PORT, () => {
     console.log(`Listening on PORT ${PORT}`);
 })
 
-// Clear the intervals on server or process close to avoid
-// memory leaks
-// Cron job was previously used but it was difficult to shut it down
-server.on('close', function() {
-    // clearInterval(interval);
-    // clearInterval(interval2);
-});
-
-
-process.on('exit', () => {
-    // clearInterval(interval);
-    // clearInterval(interval2);
-})
 
 
 // Gives a random number between two numbers

@@ -1,6 +1,6 @@
 // Imports
 import {Router} from 'express';
-import { getBodyData } from '../Controller/Controller';
+import { getBodyData, getAbnormalBodyData } from '../Controller/Controller';
 import  firebaseController  from '../Controller/FirebaseController';
 
 // Init the router var from express
@@ -16,6 +16,9 @@ router.post('/login-user',firebaseController.loginUser);
 router.post('/change-password', firebaseController.changePassword);
 // List all users in the database
 router.post('/get-users',firebaseController.getUsers);
+
+// Fetch data from the abnormal collection
+router.get('/abnormal', getAbnormalBodyData)
 
 
 // Exports

@@ -2,14 +2,14 @@
 import mongoose from 'mongoose';
 
 // Temp Model Schema 
-const TempModelSchema = new mongoose.Schema({
+const AbnormalSchema = new mongoose.Schema({
     bodyTemp: { type: String, required: true },
     bodyPulse : {type : String, required : true},
-    createdAt : {type : Date, default : Date.now, expires : '1m'},
+    createdAt : {type : Date, default : Date.now},
 }, { timestamps: true, versionKey : false });
 
 
-const TempModel = mongoose.model('TempModel', TempModelSchema, 'Temp');
+const AbnormalModel = mongoose.model('TempModel', AbnormalSchema, 'Abnormal');
 
 // Exports
-export default TempModel;
+export default AbnormalModel;
