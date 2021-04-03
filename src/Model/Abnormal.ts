@@ -9,7 +9,7 @@ const AbnormalSchema = new mongoose.Schema({
 }, { timestamps: true, versionKey : false });
 
 
-const AbnormalModel = mongoose.model('TempModel', AbnormalSchema, 'Abnormal');
+const AbnormalModel = mongoose.model('AbnormalModel', AbnormalSchema, 'Abnormal');
 
 // Exports
 export default AbnormalModel;

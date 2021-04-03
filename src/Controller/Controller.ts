@@ -25,7 +25,9 @@ function getBodyData(req: Request, res: Response, io: any): void {
 
     // Emit the data to the client before storing it in the database.
     io.sockets.emit("Temp", {
-      bodyPulse, bodyTemp
+      bodyPulse,
+       bodyTemp,
+      createdAt: new Date().getTime,
     });
 
     // Create a new temp doc from the provided data
@@ -54,13 +56,13 @@ function getBodyData(req: Request, res: Response, io: any): void {
 
 
 function checkAbnormality(bodyTemp: string, bodyPulse: string, io: any) {
-  return check(parseFloat(bodyPulse), parseFloat(bodyTemp), io);
+  return check(parseFloat(bodyTemp), parseFloat(bodyPulse), io);
 }
 
 
 async function check(bodyTemp: number, bodyPulse: number, io: any): Promise<boolean> {
-  let flag1: boolean = bodyTemp >= 36 || bodyTemp <= 38;
-  let flag2: boolean = bodyPulse >= 60 || bodyPulse <= 110;
+  let flag1: boolean = bodyTemp >= 36 && bodyTemp <= 38;
+  let flag2: boolean = bodyPulse >= 60 && bodyPulse <= 110;
   if (!flag1 || !flag2) {
     // Abnormal bodyTemp  or bodyTemp, store both in the database
     // Store in the abnormal table
