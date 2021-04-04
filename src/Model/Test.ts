@@ -1,21 +1,17 @@
 import mongoose from 'mongoose';
 
-const UserSchema = new mongoose.Schema({
-    user: [
-        new mongoose.Schema({
-            uid : {type : String, required : true},
-            temp: [
-                new mongoose.Schema({
-                    bodyTemp: { type: String, required: true },
-                    bodyPulse: { type: String, required: true },
-                    createdAt: { type: Date, default: Date.now, expires: '1m' },
-                }, { timestamps: true, versionKey: false })
-            ]
-        })
+const UserData  = new mongoose.Schema({
+    uid : {type : String, required : true},
+    temp : [
+        {
+            bodyTemp: { type: String, required: true },
+            bodyPulse : {type : String, required : true},
+            createdAt : {type : Date, default : Date.now, expires : '1m'},
+        }
     ]
-});
+})
 
-const UserModel = mongoose.model('UserData', UserSchema, 'UserData');
+const UserModel = mongoose.model('UserData', UserData, 'UserData');
 
 export default UserModel;
 

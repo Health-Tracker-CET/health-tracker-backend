@@ -1,13 +1,14 @@
 // Imports
 require('dotenv').config();
 import express, { Request, Response } from 'express';
-import TempModel from './Model/TempModel';
 import mongoose from 'mongoose';
 import Router from './Routes/Routes';
 import http from 'http';
 import cors from 'cors';
 import {Socket} from 'socket.io'
 import { getBodyData, saveBodyData } from './Controller/Controller';
+import UserModel from './Model/Test';
+import AbnormalModel from './Model/Abnormal';
 const logger = require("morgan");
 const socket = require('socket.io');
 
@@ -70,7 +71,12 @@ db.once('open', () => {
         console.log(data);
         
         const {bodyTemp, bodyPulse, uid} = data;
-        saveBodyData(parseFloat(bodyTemp), parseFloat(bodyPulse), uid);
+        saveBodyData(parseFloat(bodyTemp), parseFloat(bodyPulse), uid, io, UserModel);
+    });
+
+    socket.on('abnormal-data-save', (data) => {
+        const {bodyTemp, bodyPulse, uid} = data;
+        saveBodyData(parseFloat(bodyTemp), parseFloat(bodyPulse), uid, io, AbnormalModel);
     })
     // Listen for socket client disconnects
     socket.on("disconnect", () => {

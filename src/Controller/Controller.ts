@@ -21,9 +21,6 @@ function getBodyData(req: Request, res: Response, io: any): void {
     // All parameters are sent
   } else {
 
-    // Check for abnormal body and store it in abnormal table if any.
-    checkAbnormality(bodyTemp.toString(), bodyPulse.toString(), io);
-
     // Emit the data to the client before storing it in the database.
     io.sockets.emit("Temp", {
       bodyPulse,
@@ -31,40 +28,54 @@ function getBodyData(req: Request, res: Response, io: any): void {
       createdAt: new Date().getTime,
     });
 
-    // Create a new temp doc from the provided data
-    const newTempData = new TempModel({ bodyPulse, bodyTemp });
-    newTempData
-      .save()
-      .then((document) => {
-        // Doc saved successfully
-        // 200 status OK
+    // Check for abnormal body and store it in abnormal table if any.
+    try {
+      checkAbnormality(bodyTemp.toString(), bodyPulse.toString(), io);
         res.status(200).json({
           error: false,
           message: "Success",
-          doc: document,
+          
         });
-      })
-      // Server problem
-      // 500 Internal Server Error
-      .catch((err) => {
-        res.status(500).json({
-          error: false,
-          message: "Failed ->" + err,
+
+    } catch(err) {
+        res.status(200).json({
+          error: true,
+          message: err,
+          
         });
-      });
+    }
+
+    
+
+    
+
   }
 }
 
-async function saveBodyData(bodyTemp : number, bodyPulse : number, uid : string) : Promise<void> {
-  const user = new UserModel([{
-    uid,
-    temp : {
+async function saveBodyData(bodyTemp : number, bodyPulse : number, uid : string, io : any, model : any) : Promise<void> {
+  const isUser = await model.findOne({uid});
+
+  if(isUser) {
+    // Uid is present, save body data
+    isUser.temp = [...isUser.temp, {
       bodyTemp,
       bodyPulse
-    }
-  }]);
+    }];
+    await isUser.save();
+    return;    
+  }
 
-  await user.save();
+  const newUser = new model({
+    uid : uid,
+    temp : [{
+      bodyTemp,
+      bodyPulse
+    }]
+  });
+
+  await newUser.save();
+
+  return;
 }
 
 function checkAbnormality(bodyTemp: string, bodyPulse: string, io: any) {
