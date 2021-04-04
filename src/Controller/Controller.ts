@@ -24,7 +24,7 @@ function getBodyData(req: Request, res: Response, io: any): void {
     io.sockets.emit("Temp", {
       bodyPulse,
       bodyTemp,
-      createdAt: new Date().getTime,
+      createdAt: new Date().getTime(),
     });
 
     // Check for abnormal body and store it in abnormal table if any.
@@ -54,27 +54,33 @@ function getBodyData(req: Request, res: Response, io: any): void {
 async function saveBodyData(bodyTemp : number, bodyPulse : number, uid : string, io : any, model : any) : Promise<void> {
   const isUser = await model.findOne({uid});
 
-  if(isUser) {
-    // Uid is present, save body data
-    isUser.temp = [...isUser.temp, {
-      bodyTemp,
-      bodyPulse
-    }];
-    await isUser.save();
-    return;    
+  try {
+    if(isUser) {
+      // Uid is present, save body data
+      isUser.temp = [...isUser.temp, {
+        bodyTemp,
+        bodyPulse
+      }];
+      await isUser.save();
+      return;    
+    }
+  
+    const newUser = new model({
+      uid : uid,
+      temp : [{
+        bodyTemp,
+        bodyPulse
+      }]
+    });
+  
+    await newUser.save();
+  
+    return;  
+  } catch (error) {
+    console.log(error);
+    
   }
-
-  const newUser = new model({
-    uid : uid,
-    temp : [{
-      bodyTemp,
-      bodyPulse
-    }]
-  });
-
-  await newUser.save();
-
-  return;
+  
 }
 
 function checkAbnormality(bodyTemp: string, bodyPulse: string, io: any) {
@@ -95,12 +101,12 @@ async function check(bodyTemp: number, bodyPulse: number, io: any): Promise<bool
     });
 
     // Save the doc to the database
-    let newAbnormal: mongoose.Document = new AbnormalModel({
-      bodyTemp,
-      bodyPulse
-    });
+    // let newAbnormal: mongoose.Document = new AbnormalModel({
+    //   bodyTemp,
+    //   bodyPulse
+    // });
 
-    await newAbnormal.save();
+    // await newAbnormal.save();
     return true;
   }
   // Store in the normal table

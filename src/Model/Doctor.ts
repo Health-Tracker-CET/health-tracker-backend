@@ -6,5 +6,6 @@ const DoctorSchema = new mongoose.Schema({
     name : {type : String, required : true},
 })
 
+const DoctorModel = mongoose.model('DoctorSchema',DoctorSchema,'Doctor');
 
-export default mongoose.model('Doctors', DoctorSchema, 'Doctors');
+export default DoctorModel;

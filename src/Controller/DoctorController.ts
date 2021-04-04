@@ -3,18 +3,18 @@ import DoctorModel from '../Model/Doctor';
 
 async function getDoctors(req : Request, res : Response) : Promise<void> {
     try {
-        const doctors = await DoctorModel.find({});
+        const doctors = await getDoctorList();
         if(!doctors) {
             // No doctors found
             res.status(400).json({
                 error : true, 
-                message : "No doctors found"
+                message : "No doctors registered yet"
             });
             return;
         }
 
         res.status(200).json({
-            error : true,
+            error : false,
             message : "OK",
             data : doctors
         });
@@ -27,7 +27,13 @@ async function getDoctors(req : Request, res : Response) : Promise<void> {
     }
 }
 
+async function getDoctorList() {
+    const doctors = await DoctorModel.find({});
+    return doctors;
+}
+
 
 export {
-    getDoctors
+    getDoctors,
+    getDoctorList
 }

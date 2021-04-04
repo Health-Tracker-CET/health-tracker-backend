@@ -58,9 +58,7 @@ db.once('open', () => {
         getBodyData(req,res,io);
     });
 
-    socket.on('data-save', (data) => {
-        console.log(data);
-        
+    socket.on('data-save', (data) => {        
         const {bodyTemp, bodyPulse, uid} = data;
         saveBodyData(parseFloat(bodyTemp), parseFloat(bodyPulse), uid, io, UserModel);
     });
