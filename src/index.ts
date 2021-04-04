@@ -7,7 +7,7 @@ import Router from './Routes/Routes';
 import http from 'http';
 import cors from 'cors';
 import {Socket} from 'socket.io'
-import { getBodyData } from './Controller/Controller';
+import { getBodyData, saveBodyData } from './Controller/Controller';
 const logger = require("morgan");
 const socket = require('socket.io');
 
@@ -59,11 +59,18 @@ db.once('open', () => {
 
  // Socket event for client connection to the server
  io.on("connection", async (socket: Socket) => {
-    console.log("User Connected");
+    
 
 
     app.use("/api/data",(req: Request,res: Response)=>{
         getBodyData(req,res,io);
+    });
+
+    socket.on('data-save', (data) => {
+        console.log(data);
+        
+        const {bodyTemp, bodyPulse, uid} = data;
+        saveBodyData(parseFloat(bodyTemp), parseFloat(bodyPulse), uid);
     })
     // Listen for socket client disconnects
     socket.on("disconnect", () => {

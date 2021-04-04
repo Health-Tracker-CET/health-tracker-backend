@@ -6,6 +6,7 @@ import { error } from "console";
 
 function createUser(req: Request, res: Response): void {
   const { email, password, name } = req.body;
+  
   firebase
     .auth()
     .createUserWithEmailAndPassword(email, password)

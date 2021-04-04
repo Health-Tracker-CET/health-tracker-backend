@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import mongoose from "mongoose";
 import TempModel from "../Model/TempModel";
 import AbnormalModel from '../Model/Abnormal';
+import UserModel from '../Model/Test';
 
 // Post request
 // Accepts bodyTemp and bodyPulse in the request query and puts it in to the collection
@@ -26,7 +27,7 @@ function getBodyData(req: Request, res: Response, io: any): void {
     // Emit the data to the client before storing it in the database.
     io.sockets.emit("Temp", {
       bodyPulse,
-       bodyTemp,
+      bodyTemp,
       createdAt: new Date().getTime,
     });
 
@@ -54,6 +55,17 @@ function getBodyData(req: Request, res: Response, io: any): void {
   }
 }
 
+async function saveBodyData(bodyTemp : number, bodyPulse : number, uid : string) : Promise<void> {
+  const user = new UserModel([{
+    uid,
+    temp : {
+      bodyTemp,
+      bodyPulse
+    }
+  }]);
+
+  await user.save();
+}
 
 function checkAbnormality(bodyTemp: string, bodyPulse: string, io: any) {
   return check(parseFloat(bodyTemp), parseFloat(bodyPulse), io);
@@ -112,4 +124,4 @@ async function getAbnormalBodyData(req: Request, res: Response) {
 }
 
 // Exports
-export { getBodyData, getAbnormalBodyData };
+export { getBodyData, getAbnormalBodyData, saveBodyData };
