@@ -2,12 +2,10 @@
 import {Router} from 'express';
 import { getBodyData, getAbnormalBodyData } from '../Controller/Controller';
 import  firebaseController  from '../Controller/FirebaseController';
-
+import { getDoctors } from '../Controller/DoctorController';
 // Init the router var from express
 const router = Router();
 
-// Get body data and insert it to the db
-// router.get('/data', getBodyData);
 // Create a new user 
 router.post('/create-user',firebaseController.createUser);
 // Login an user
@@ -19,6 +17,9 @@ router.post('/get-users',firebaseController.getUsers);
 
 // Fetch data from the abnormal collection
 router.get('/abnormal', getAbnormalBodyData);
+
+// Get all the doctors from the doctor collection
+router.get('/doctor/all', getDoctors);
 
 
 // Exports

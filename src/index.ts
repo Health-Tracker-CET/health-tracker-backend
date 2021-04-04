@@ -27,20 +27,11 @@ const io = socket(server, {
 
 // Environment variables
 const PORT = process.env.PORT || 5000;
-const KEY = process.env.THINK_SPEAK_API_KEY;
 const DB_URI = process.env.DB_URI;
 
 // Init the db variable to listen for events related to mongoDB server
 const db = mongoose.connection;
 
-// Set interval that runs as soon as the node server is up and running
-// And inserts documents containing body temp and pulse that is randomly generated
-// inserting in to the mongo collection every 1 seconds (Change it to a longer duration in production)
-let interval: NodeJS.Timeout;
-
-// Set interval that sends 10 most recent temp and pulse readings
-// to the client via sockets
-let interval2: NodeJS.Timeout;
 
 // Middlewares for the express server
 app.use(cors());
@@ -77,7 +68,9 @@ db.once('open', () => {
     socket.on('abnormal-data-save', (data) => {
         const {bodyTemp, bodyPulse, uid} = data;
         saveBodyData(parseFloat(bodyTemp), parseFloat(bodyPulse), uid, io, AbnormalModel);
-    })
+    });
+
+
     // Listen for socket client disconnects
     socket.on("disconnect", () => {
       console.log("User disconnected");

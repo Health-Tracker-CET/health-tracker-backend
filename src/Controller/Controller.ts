@@ -1,7 +1,6 @@
 // Imports
 import { Request, Response } from "express";
 import mongoose from "mongoose";
-import TempModel from "../Model/TempModel";
 import AbnormalModel from '../Model/Abnormal';
 import UserModel from '../Model/Test';
 
