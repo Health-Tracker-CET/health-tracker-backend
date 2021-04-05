@@ -7,7 +7,7 @@ import { error } from "console";
 import { getDoctorList } from "./DoctorController";
 
 function createUser(req: Request, res: Response): void {
-  const { email, password, name, designation,isDoctor } = req.body;
+  const { email, password, name, designation,isDoctor, uid, age } = req.body;
   
   firebase
     .auth()
@@ -34,8 +34,8 @@ function createUser(req: Request, res: Response): void {
             email: userRecord.email,
             name: userRecord.displayName,
             uid: userRecord.uid,
-            age: '23',
-            doctor_uid: '12123123'
+            age,
+            doctor_uid: uid
           });
         }
 

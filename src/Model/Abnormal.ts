@@ -7,7 +7,7 @@ const AbnormalSchema  = new mongoose.Schema({
         {
             bodyTemp: { type: String, required: true },
             bodyPulse : {type : String, required : true},
-            createdAt : {type : Date, default : Date.now, expires : '1m'},
+            createdAt : {type : Date, default : Date.now},
         }
     ]
 })

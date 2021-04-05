@@ -29,6 +29,7 @@ async function getDoctors(req : Request, res : Response) : Promise<void> {
 
 async function getDoctorList() {
     const doctors = await DoctorModel.find({});
+    
     return doctors;
 }
 
