@@ -7,7 +7,7 @@ import { error } from "console";
 import { getDoctorList } from "./DoctorController";
 
 function createUser(req: Request, res: Response): void {
-  const { email, password, name, isDoctor } = req.body;
+  const { email, password, name, designation,isDoctor } = req.body;
   
   firebase
     .auth()
@@ -27,12 +27,15 @@ function createUser(req: Request, res: Response): void {
             email: userRecord.email,
             name: userRecord.displayName,
             uid: userRecord.uid,
+            designation
           });
         } else {
           newUser = new UserModel({
             email: userRecord.email,
             name: userRecord.displayName,
             uid: userRecord.uid,
+            age: '23',
+            doctor_uid: '12123123'
           });
         }
 
@@ -63,7 +66,7 @@ function createUser(req: Request, res: Response): void {
     })
     .catch((error: Error) => {
       console.log(error);
-      res.status(500).json({ error: true, message: "Something went wrong" });
+      res.status(500).json({ error: true, message: error.message });
     });
 }
 
@@ -74,7 +77,8 @@ function loginUser(req: Request, res: Response) {
     .signInWithEmailAndPassword(email, password)
     .then(async (user:any) => {
       // Signed in 
-      // ...
+      // ...      
+      // Use user.user.emailVerified to get if a user in verified or not
       if(user.emailVerified === false){
           res.status(403).json({error:true,message:"User not verified please verify"})
       }else {
@@ -139,7 +143,7 @@ async function getUsers (req:Request,res:Response) {
   const {name,uid} = req.body;
   try {
     if (!(name ||uid)) {
-      const query = UserModel.find({}).select('name email uid');
+      const query = UserModel.find({}).select('name email uid age');
       query.exec((err:Error,users:any)=>{
         if(err){
           res.status(500).json({error:true,message:"some database error"});    
