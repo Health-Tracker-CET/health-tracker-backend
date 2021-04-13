@@ -116,11 +116,12 @@ async function check(bodyTemp: number, bodyPulse: number, io: any): Promise<bool
 // Get request to get all abnormal records for the patient 
 async function getAbnormalBodyData(req: Request, res: Response) {
   try {
-    const abnormalData: mongoose.Document[] = await AbnormalModel.find({});
+    const {uid} = req.body;
+    const abnormalData: mongoose.Document[] = await AbnormalModel.find({uid});
     abnormalData.length >= 0 ?
       res.json({
         error: false,
-        data: abnormalData,
+        data: abnormalData[0],
         message: "Success"
       })
       :

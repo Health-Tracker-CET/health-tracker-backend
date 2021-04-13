@@ -16,7 +16,7 @@ router.post('/change-password', firebaseController.changePassword);
 router.post('/get-users',firebaseController.getUsers);
 
 // Fetch data from the abnormal collection
-router.get('/abnormal', getAbnormalBodyData);
+router.post('/abnormal', getAbnormalBodyData);
 
 // Get all the doctors from the doctor collection
 router.get('/doctor/all', getDoctors);
