@@ -1,6 +1,7 @@
 // Imports
 import {Router} from 'express';
 import { getBodyData, getAbnormalBodyData } from '../Controller/Controller';
+import { addPrescription, retrievePrescription } from '../Controller/PrescriptionController';
 import  firebaseController  from '../Controller/FirebaseController';
 import { getDoctors } from '../Controller/DoctorController';
 // Init the router var from express
@@ -21,6 +22,13 @@ router.post('/abnormal', getAbnormalBodyData);
 // Get all the doctors from the doctor collection
 router.get('/doctor/all', getDoctors);
 
+// Add a prescription for a patient
+// Needs to be done by a doctor who is logged in.
+router.post('/prescription/add', addPrescription);
+
+// Retrieve prescriptions for a patient
+// Needs to be done by a doctor who is logged in.
+router.post('/prescriptions/get', retrievePrescription);
 
 // Exports
 export default router;
