@@ -1,11 +1,14 @@
 import { Request, Response } from "express";
 import admin from "../setUpFirebaseAdmin";
 import UserModel from "../Model/UserModel";
+import DoctorModel from "../Model/Doctor";
 import firebase from "../setUpFirebase";
 import { error } from "console";
+import { getDoctorList } from "./DoctorController";
 
 function createUser(req: Request, res: Response): void {
-  const { email, password, name } = req.body;
+  const { email, password, name, designation,isDoctor, uid, age } = req.body;
+  
   firebase
     .auth()
     .createUserWithEmailAndPassword(email, password)
@@ -18,12 +21,24 @@ function createUser(req: Request, res: Response): void {
         userRecord.sendEmailVerification();
   
         // add user to database
-        const newUser = new UserModel({
-          email: userRecord.email,
-          name: userRecord.displayName,
-          uid: userRecord.uid,
-        });
-  
+        let newUser;
+        if(isDoctor){
+          newUser = new DoctorModel({
+            email: userRecord.email,
+            name: userRecord.displayName,
+            uid: userRecord.uid,
+            designation
+          });
+        } else {
+          newUser = new UserModel({
+            email: userRecord.email,
+            name: userRecord.displayName,
+            uid: userRecord.uid,
+            age,
+            doctor_uid: uid
+          });
+        }
+
         newUser
           .save()
           .then((user) => {
@@ -51,26 +66,62 @@ function createUser(req: Request, res: Response): void {
     })
     .catch((error: Error) => {
       console.log(error);
-      res.status(500).json({ error: true, message: "Something went wrong" });
+      res.status(500).json({ error: true, message: error.message });
     });
 }
 
 function loginUser(req: Request, res: Response) {
-  const { email, password } = req.body;
+  const { email, password,isDoctor } = req.body;
   firebase
     .auth()
     .signInWithEmailAndPassword(email, password)
-    .then((user:any) => {
+    .then(async (user:any) => {
       // Signed in 
-      // ...
+      // ...      
+      // Use user.user.emailVerified to get if a user in verified or not
       if(user.emailVerified === false){
           res.status(403).json({error:true,message:"User not verified please verify"})
       }else {
-        res.status(200).json({ error:false, message:user});
+        // check if he is doctor
+        if (isDoctor) {
+          const doctors = await getDoctorList();
+          let doctorFound = false;
+          if (doctors) {
+            doctors.forEach((element: any)=> {
+              if (element.email === email) {
+                doctorFound = true;
+                res.status(200).json({
+                  error:false,
+                  message: "OK"
+                })
+                return;
+              }
+            });
+            if (!doctorFound) {
+              res.status(404).json({
+                error:true,
+                message:"You are not a doctor"
+              })  
+            }
+            
+            return;
+          }
+
+          if (!doctors) {
+            res.status(500).json({error:true,message:"No doctors present"})
+            return;
+          }
+        }
+        // check if he not a doctor
+        if (isDoctor == undefined) {
+          res.status(200).json({ error:false, message:user});
+          return;
+        }
+        
       }
     })
     .catch((error:Error) => {
-      console.log(error.message);  
+      console.error(error.message);  
         res.status(500).json({ error:true, message:error.message})
     });
 }
@@ -92,7 +143,7 @@ async function getUsers (req:Request,res:Response) {
   const {name,uid} = req.body;
   try {
     if (!(name ||uid)) {
-      const query = UserModel.find({}).select('name email uid');
+      const query = UserModel.find({}).select('name email uid age');
       query.exec((err:Error,users:any)=>{
         if(err){
           res.status(500).json({error:true,message:"some database error"});    
