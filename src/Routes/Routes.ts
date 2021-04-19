@@ -4,6 +4,7 @@ import { getBodyData, getAbnormalBodyData } from '../Controller/Controller';
 import { addPrescription, retrievePrescription } from '../Controller/PrescriptionController';
 import  firebaseController  from '../Controller/FirebaseController';
 import { getDoctors } from '../Controller/DoctorController';
+import { addUserToAttendant, createAttendant, getAllUsers, loginAttendant } from '../Controller/AttendantController';
 // Init the router var from express
 const router = Router();
 
@@ -29,6 +30,20 @@ router.post('/prescription/add', addPrescription);
 // Retrieve prescriptions for a patient
 // Needs to be done by a doctor who is logged in.
 router.post('/prescriptions/get', retrievePrescription);
+// Attendant Routes
+
+// Creating a new Attendant
+router.post('/create-attendant',createAttendant);
+
+// Logging in the Attendant
+router.post("/login-attendant",loginAttendant);
+
+// Add user to attendant
+router.post("/add-user-to-attendant",addUserToAttendant);
+
+// Get All the Attendant Users
+router.post("/get-all-attendant-users",getAllUsers)
+
 
 // Exports
 export default router;
