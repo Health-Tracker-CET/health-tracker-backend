@@ -92,7 +92,7 @@ function loginUser(req: Request, res: Response) {
                 doctorFound = true;
                 res.status(200).json({
                   error:false,
-                  message: "OK"
+                  message: user
                 })
                 return;
               }
@@ -168,7 +168,7 @@ async function getUsers (req:Request,res:Response) {
     } else if((uid)) {
       
         UserModel.find({ uid })
-          .select("name email uid")
+          .select("name email uid doctor_uid")
           .exec((err:Error,users:any)=>{
             if(err){
               res.status(500).json({error:true,message:"some database error"});    

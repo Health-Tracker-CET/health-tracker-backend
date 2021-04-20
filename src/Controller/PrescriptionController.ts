@@ -90,7 +90,7 @@ async function retrievePrescription(req : Request, res : Response) : Promise<voi
 
     if(isDoctor && isPatient) {
         // Both the doctor and the user are present in the database
-        const prescriptions = await PrescriptionModel.find({doctorId, patientId}).sort('datePrescribed', -1).limit(count);
+        const prescriptions = await PrescriptionModel.find({doctorId, patientId}).sort([['datePrescribed', -1]]).limit(count);
         if(!prescriptions) {
             // No prescription found for that user
             const error : IResponseObj = {
