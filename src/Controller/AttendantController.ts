@@ -4,6 +4,9 @@ import AttendantModel from "../Model/Attendant";
 import firebase from "../setUpFirebase";
 import { error, exception } from "console";
 import UserModel from "../Model/UserModel";
+import AbnormalModel from "../Model/Abnormal";
+import mongoose from "mongoose";
+import PrescriptionModel from "../Model/Prescription";
 
 
 // Route functions
@@ -112,20 +115,7 @@ function loginAttendant(req: Request, res: Response) {
 async function addUserToAttendant(req: Request, res: Response){
   try{
     const {userEmail,attendantEmail} = req.body;
-    let userPresent = false;
-    let attendantPresent = false;
-
-  // Check for user if exists or not
-    const user = await UserModel.find({email:{$eq:userEmail}});
-    if (user.length>0){
-      userPresent = true;
-    }
-
-  // Check for attendant exists or not
-    const attendants = await AttendantModel.find({email:{$eq:attendantEmail}});
-    if(attendants.length){
-      attendantPresent =true;
-    }
+    const {userPresent,attendantPresent} = await checkUserAttendantPresence(userEmail,attendantEmail) ;
 
   // Add user to attendant if both present
     if(userPresent && attendantPresent){
@@ -200,11 +190,81 @@ async function getAllUsers(req: Request, res: Response){
   }
 }
 
+async function getAttendantViewUserPrescribtion(req: Request, res: Response){
+  const {userEmail} = req.body;
+  const userObj = await UserModel.find({email:{$eq:userEmail}});
+  const patientId = userObj[0].uid;
+  const prescriptionObj = await PrescriptionModel.find({patientId:{$eq:patientId}})
+  if(prescriptionObj.length>0){
+    res.json({
+      error: false,
+      data: prescriptionObj[0],
+      message: "Success"
+    })
+  }
+  else{
+    res.json({
+      error: true,
+      data: [],
+      message: "Success"
+    })
+  }
+  return ;
+}
+
+async function getAttendantViewUserAbnormalData(req: Request, res: Response){
+  try{
+    const {userEmail} = req.body;
+  const userObj = await UserModel.find({email:{$eq:userEmail}});
+  const uid = userObj[0].uid;
+  const abnormalData: mongoose.Document[] = await AbnormalModel.find({uid});
+    abnormalData.length >= 0 ?
+      res.json({
+        error: false,
+        data: abnormalData[0],
+        message: "Success"
+      })
+      :
+      res.json({
+        error: true,
+        data: [],
+        message: "No abnormal records found."
+      })
+  }
+  catch (err: any) {
+    res.json({
+      error: true,
+      data: [],
+      message: err
+    })
+  }
+  // const abnormalData: mongoose.Document[] = await AbnormalModel.find({uid});
+}
+
+
 
 // Helper Functions
 async function getAttendantList(){
   const attendants = await AttendantModel.find({});
   return attendants
+}
+
+async function checkUserAttendantPresence(userEmail : string,attendantEmail : string){
+    let userPresent = false;
+    let attendantPresent = false;
+
+  // Check for user if exists or not
+    const user = await UserModel.find({email:{$eq:userEmail}});
+    if (user.length>0){
+      userPresent = true;
+    }
+
+  // Check for attendant exists or not
+    const attendants = await AttendantModel.find({email:{$eq:attendantEmail}});
+    if(attendants.length){
+      attendantPresent =true;
+    }
+    return {userPresent,attendantPresent}
 }
 
 async function getAllAttendantUsers(mail:string) {
@@ -240,4 +300,4 @@ async function getUsers(usersEmail:string[]) {
 }
 
 // functions which are exported
-export  {createAttendant,loginAttendant,addUserToAttendant,getAllUsers};
+export  {createAttendant,loginAttendant,addUserToAttendant,getAllUsers,getAttendantViewUserAbnormalData};
