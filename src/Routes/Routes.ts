@@ -5,6 +5,7 @@ import { addPrescription, retrievePrescription } from '../Controller/Prescriptio
 import  firebaseController  from '../Controller/FirebaseController';
 import { getDoctors } from '../Controller/DoctorController';
 import { addUserToAttendant, createAttendant, getAllUsers, loginAttendant } from '../Controller/AttendantController';
+import { sendSms } from '../Controller/SmsController';
 // Init the router var from express
 const router = Router();
 
@@ -43,6 +44,9 @@ router.post("/add-user-to-attendant",addUserToAttendant);
 
 // Get All the Attendant Users
 router.post("/get-all-attendant-users",getAllUsers)
+
+// Route for sending sms
+router.get("/send",sendSms)
 
 
 // Exports
