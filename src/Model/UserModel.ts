@@ -5,7 +5,8 @@ const UserModelSchema = new mongoose.Schema({
     email: {type:String, required: true},
     uid: {type:String, required: true},
     age : {type : Number, required : true},
-    doctor_uid : {type : String, required : true}
+    doctor_uid : {type : String, required : true},
+    phone : {type:String,required:true}
 }, { timestamps: true, versionKey : false });
 
 

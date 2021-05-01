@@ -8,7 +8,7 @@ import UserModel from "../Model/UserModel";
 
 // Route functions
 function createAttendant(req: Request, res: Response){
-    const { email, password, name } = req.body;
+    const { email, password, name, phone } = req.body;
     
     firebase
       .auth()
@@ -26,8 +26,9 @@ function createAttendant(req: Request, res: Response){
         newUser = new AttendantModel({
             email: userRecord.email,
             name: userRecord.displayName,
-            attendantId: userRecord.uid,
-            usersEmailId:[]
+            uid: userRecord.uid,
+            patient_uid:[],
+            phone
         });        
   
           newUser
@@ -111,18 +112,39 @@ function loginAttendant(req: Request, res: Response) {
 
 async function addUserToAttendant(req: Request, res: Response){
   try{
-    const {userEmail,attendantEmail} = req.body;
+    const {patient_uid,attendant_uid} = req.body;
     let userPresent = false;
     let attendantPresent = false;
 
   // Check for user if exists or not
-    const user = await UserModel.find({email:{$eq:userEmail}});
-    if (user.length>0){
+    const user = await UserModel.find({uid:{$eq:patient_uid}});
+    
+    if (user.length === 0  || user.length === undefined){
+      // user is not present or user doesn't exists
+      console.log("afd");
+      
+      res.status(404).json({
+        error:true,
+        message:"Patient doesn't exists"
+      })
+      return;
+    }
+
+    if (user.length > 0) {
       userPresent = true;
     }
 
   // Check for attendant exists or not
-    const attendants = await AttendantModel.find({email:{$eq:attendantEmail}});
+    const attendants = await AttendantModel.find({uid:{$eq:attendant_uid}});
+
+    if (attendants.length === 0 || attendants.length === undefined) {
+      res.status(404).json({
+        error:true,
+        message:"Attendant doesn't exists"
+      })
+      return;
+    }
+
     if(attendants.length){
       attendantPresent =true;
     }
@@ -131,10 +153,12 @@ async function addUserToAttendant(req: Request, res: Response){
     if(userPresent && attendantPresent){
 
       // check for if user already added to the attendant
-      const allAttendantUsers = await getAllAttendantUsers(attendantEmail)
-      const isUser = await userExists(allAttendantUsers,userEmail);
-      if(isUser){
-        const addUserEmail = await AttendantModel.updateOne({email:{$eq:attendantEmail}},{$push:{usersEmailId:userEmail}})
+      const allAttendantUsers = await getAllAttendantUsers(attendant_uid)
+      const isUser = await userExists(allAttendantUsers,patient_uid);
+      
+      // isUser true if user exists
+      if(!isUser){
+        const addUserEmail = await AttendantModel.updateOne({uid:{$eq:attendant_uid}},{$push:{patient_uid:patient_uid}})
         res.status(200).json({
           error:false,
           message: "The user was successfully added to the attendant"
@@ -152,38 +176,41 @@ async function addUserToAttendant(req: Request, res: Response){
     else if(userPresent){
       res.status(500).json({
         error:true,
-        message: "There is no attendant with given email"
+        message: "No Such attendant exists"
       })
       return;
     }
     else if(attendantPresent){
       res.status(500).json({
         error:true,
-        message: "There is no user with given email"
+        message: "No such patient exists"
       })
       return;
     }
     else{
       res.status(500).json({
         error:true,
-        message: "There is no user and attendant with given email"
+        message: "No such patient and attendant exists"
       })
       return;
     }
   }
   catch (e){
     console.log(e);
+    res.status(500).json({
+      error:true,
+      message: e.message
+    })
     }
 
 }
 
 async function getAllUsers(req: Request, res: Response){
-  const {attendantEmail} = req.body;
-  const attendant = await AttendantModel.find({email:{$eq:attendantEmail}}) 
+  const {attendant_uid} = req.body;
+  const attendant = await AttendantModel.find({uid:{$eq:attendant_uid}}) 
   if (attendant.length>0){
-    const allAttendantUsers = await getAllAttendantUsers(attendantEmail);
+    const allAttendantUsers = await getAllAttendantUsers(attendant_uid);
     const users = await getUsers(allAttendantUsers);
-    console.log(users)
     res.status(200).json({
       error:false,
       message: "ok",
@@ -207,32 +234,41 @@ async function getAttendantList(){
   return attendants
 }
 
-async function getAllAttendantUsers(mail:string) {
-  const attendant = await AttendantModel.find({email:{$eq:mail}});
-  return attendant[0].usersEmailId;
+async function getAllAttendantUsers(uid:string) {
+  const attendant = await AttendantModel.find({uid:{$eq:uid}});
+  return attendant[0].patient_uid;
 }
 
-async function userExists(allUsersEmail:string[],userEmail:string) {
-  let isUser = true
-  if (allUsersEmail.length>0){
-    allUsersEmail.forEach((email: any)=> {
-      if (email === userEmail) {
-        return !isUser;
-      }
-    });
+async function userExists(allUsersUid:string[],userUid:string) {
+  let isUser = true  
+  if (allUsersUid.length>0){
+    const res = allUsersUid.find(value=>{
+      return (value===userUid)
+    })
+    
+    if (res) {
+      return isUser;
+    }
+    
+    // allUsersUid.forEach((uid: string)=> {
+    //   if (uid === userUid) {
+    //     console.log(uid.localeCompare(userUid));
+    //     return isUser;
+    //   }
+    // });
   }
-  return isUser;
+  return !isUser;
   
 }
 
-async function getUser(userEmail:string){
-  const user = await UserModel.find({email:{$eq:userEmail}});
+async function getUser(user_uid:string){
+  const user = await UserModel.find({uid:{$eq:user_uid}});
   return user[0];
 }
 
-async function getUsers(usersEmail:string[]) {
-  const promises = await usersEmail.map(async (userEmail)=>{
-    const user = await getUser(userEmail);
+async function getUsers(usersUid:string[]) {
+  const promises = await usersUid.map(async (user_uid)=>{
+    const user = await getUser(user_uid);
     return user;
   })
   const result = await Promise.all(promises)

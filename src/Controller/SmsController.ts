@@ -1,8 +1,6 @@
 import { Request, Response } from "express";
 import fetch from "node-fetch";
 
-const fast2sms = require("fast-two-sms");
-
 const sendSmsInternal = async (numbers: string, message: string) => {
   try {
     //   created this method separetly to use this function internally in backend server

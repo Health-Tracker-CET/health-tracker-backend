@@ -34,16 +34,16 @@ router.post('/prescriptions/get', retrievePrescription);
 // Attendant Routes
 
 // Creating a new Attendant
-router.post('/create-attendant',createAttendant);
+router.post('/attendant/create',createAttendant);
 
 // Logging in the Attendant
-router.post("/login-attendant",loginAttendant);
+router.post("/attendant/login",loginAttendant);
 
 // Add user to attendant
-router.post("/add-user-to-attendant",addUserToAttendant);
+router.post("/attendant/add-user",addUserToAttendant);
 
 // Get All the Attendant Users
-router.post("/get-all-attendant-users",getAllUsers)
+router.post("/attendant/get-users",getAllUsers)
 
 // Route for sending sms
 router.get("/send",sendSms)

@@ -3,8 +3,9 @@ import mongoose from 'mongoose';
 const AttendantModelSchema = new mongoose.Schema({
     name: {type:String, required: true},
     email: {type:String, required: true},
-    attendantId: {type:String, required: true},
-    usersEmailId:[{ type: String }]
+    uid: {type:String, required: true},
+    patient_uid:[{ type: String }],
+    phone: {type:String, required: true}
 });
 const AttendantModel = mongoose.model('AttendantModel', AttendantModelSchema, 'Attendant');
 
