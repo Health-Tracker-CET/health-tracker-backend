@@ -4,7 +4,12 @@ import { getBodyData, getAbnormalBodyData } from '../Controller/Controller';
 import { addPrescription, retrievePrescription } from '../Controller/PrescriptionController';
 import  firebaseController  from '../Controller/FirebaseController';
 import { getDoctors } from '../Controller/DoctorController';
+<<<<<<< HEAD
 import { addUserToAttendant, createAttendant, getAllUsers, getAttendantViewUserAbnormalData, loginAttendant } from '../Controller/AttendantController';
+=======
+import { addUserToAttendant, createAttendant, getAllUsers, loginAttendant } from '../Controller/AttendantController';
+import { sendSms } from '../Controller/SmsController';
+>>>>>>> 1edb3f153c6bce488bab3653094f4d265b416d44
 // Init the router var from express
 const router = Router();
 
@@ -46,8 +51,14 @@ router.post("/add-user-to-attendant",addUserToAttendant);
 // Get All the Attendant Users
 router.post("/get-all-attendant-users",getAllUsers)
 
+<<<<<<< HEAD
 // Get User Abnormal Data
 router.post("/get-attendant-view-user-abnormal-data",getAttendantViewUserAbnormalData)
+=======
+// Route for sending sms
+router.get("/send",sendSms)
+
+>>>>>>> 1edb3f153c6bce488bab3653094f4d265b416d44
 
 // Exports
 export default router;
