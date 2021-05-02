@@ -136,7 +136,6 @@ async function addUserToAttendant(req: Request, res: Response){
     
     if (user.length === 0  || user.length === undefined){
       // user is not present or user doesn't exists
-      console.log("afd");
       
       res.status(404).json({
         error:true,
@@ -173,7 +172,8 @@ async function addUserToAttendant(req: Request, res: Response){
       
       // isUser true if user exists
       if(!isUser){
-        const addUserEmail = await AttendantModel.updateOne({uid:{$eq:attendant_uid}},{$push:{patient_uid:patient_uid}})
+        const addUserEmail = await AttendantModel.updateOne({uid:{$eq:attendant_uid}},{$push:{patient_uid:patient_uid}});
+        const addAttendantToPatient = await UserModel.updateOne({uid:{$eq:patient_uid}},{attendant_uid:attendant_uid});
         res.status(200).json({
           error:false,
           message: "The user was successfully added to the attendant"
