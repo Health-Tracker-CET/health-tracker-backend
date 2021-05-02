@@ -3,12 +3,19 @@ import admin from "../setUpFirebaseAdmin";
 import UserModel from "../Model/UserModel";
 import DoctorModel from "../Model/Doctor";
 import firebase from "../setUpFirebase";
-import { error } from "console";
+import { checkPhoneNumberExists } from "./Controller";
 import { getDoctorList } from "./DoctorController";
 
-function createUser(req: Request, res: Response): void {
+async function createUser(req: Request, res: Response): Promise<void> {
   const { email, password, name, designation,isDoctor, uid, age,phone } = req.body;
-  
+  const checkPhoneExists = await checkPhoneNumberExists(phone);
+    if (checkPhoneExists) {
+      res.status(500).json({
+        error:true,
+        message:"Phone no. already in use"
+      });
+      return;
+    }
   firebase
     .auth()
     .createUserWithEmailAndPassword(email, password)
@@ -50,6 +57,8 @@ function createUser(req: Request, res: Response): void {
                 message: user,
               });
             } else {
+// if code gets through here then response would be sent but the created user in not deleted
+// so the user can't use its email again
               res.status(500).json({
                 error: true,
                 message: "User could not be saved",
@@ -57,12 +66,20 @@ function createUser(req: Request, res: Response): void {
             }
           })
           .catch((err: Error) => {
-              console.log(err);
-              
-            res.status(500).json({
-              error: true,
-              message: "Something went wrong",
-            });
+            console.log(err.message);  
+            user.delete().then(()=>{
+              res.status(500).json({
+                error: true,
+                message: err.message,
+              });
+              return;
+            })
+            .catch((error:Error )=> {
+              res.status(500).json({
+                error: true,
+                message: err.message+"\n can't use this email again",
+              });
+            })
           });
       })
     })

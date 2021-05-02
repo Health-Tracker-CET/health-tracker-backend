@@ -2,14 +2,22 @@ import { Request, Response } from "express";
 import admin from "../setUpFirebaseAdmin";
 import AttendantModel from "../Model/Attendant";
 import firebase from "../setUpFirebase";
-import { error, exception } from "console";
+import { checkPhoneNumberExists } from './Controller';
 import UserModel from "../Model/UserModel";
+import { Error } from "mongoose";
 
 
 // Route functions
-function createAttendant(req: Request, res: Response){
+async function createAttendant(req: Request, res: Response){
     const { email, password, name, phone } = req.body;
-    
+    const checkPhoneExists = await checkPhoneNumberExists(phone);
+    if (checkPhoneExists) {
+      res.status(500).json({
+        error:true,
+        message:"Phone no. already in use"
+      });
+      return;
+    }
     firebase
       .auth()
       .createUserWithEmailAndPassword(email, password)
@@ -46,13 +54,20 @@ function createAttendant(req: Request, res: Response){
                 });
               }
             })
-            .catch((err: Error) => {
-                console.log(err);
-                
-              res.status(500).json({
-                error: true,
-                message: "Something went wrong",
-              });
+            .catch((err: Error) => {     
+              user.delete().then(()=>{
+                res.status(500).json({
+                  error: true,
+                  message: err.message,
+                });
+              })
+              .catch((error:Error )=> {
+                res.status(500).json({
+                  error: true,
+                  message: err.message+"\n can't use this email again",
+                });
+              })
+              
             });
         })
       })

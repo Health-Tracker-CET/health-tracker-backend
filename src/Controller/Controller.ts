@@ -1,7 +1,9 @@
 // Imports
 import { Request, Response } from "express";
-import mongoose from "mongoose";
+import mongoose, { Mongoose } from "mongoose";
 import AbnormalModel from '../Model/Abnormal';
+import AttendantModel from "../Model/Attendant";
+import DoctorModel from "../Model/Doctor";
 import UserModel from '../Model/Test';
 
 // Post request
@@ -140,5 +142,36 @@ async function getAbnormalBodyData(req: Request, res: Response) {
   }
 }
 
+async function checkPhoneNumberExists(phone:string) {
+  
+  // check phone no in each models to verify that this no. doesn't exists
+  let getPhoneUser:mongoose.Document[] = await UserModel.find({phone});
+  if(getPhoneUser.length > 0 ){
+    // phone exists in user table
+    return true;
+  }
+
+  getPhoneUser = await AttendantModel.find({phone});
+
+  if (getPhoneUser.length > 0) {
+    // Phone no exists in attendant
+    return true;
+  }
+
+  getPhoneUser = await DoctorModel.find({phone});
+
+  if (getPhoneUser.length > 0) {
+    // Phone no exists in doctor
+    return true;
+  }
+
+  return false;
+
+}
+
+function checkPhonePattern(phone:string) {
+  return phone.match('[6-9][0-9]{9}');
+}
+
 // Exports
-export { getBodyData, getAbnormalBodyData, saveBodyData };
+export { getBodyData, getAbnormalBodyData, saveBodyData,checkPhoneNumberExists };
