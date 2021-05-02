@@ -98,7 +98,7 @@ function loginAttendant(req: Request, res: Response) {
                 attendantFound = true;
                 res.status(200).json({
                   error:false,
-                  message: "OK"
+                  message: element
                 })
                 return;
               }
