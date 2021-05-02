@@ -184,32 +184,11 @@ async function getAllUsers(req: Request, res: Response){
   else{
     res.status(500).json({
       error:true,
-      message: "There is no Attendant with given email"
+      message: "There is no Attendant with given email",
+      data: []
     })
     return;
   }
-}
-
-async function getAttendantViewUserPrescribtion(req: Request, res: Response){
-  const {userEmail} = req.body;
-  const userObj = await UserModel.find({email:{$eq:userEmail}});
-  const patientId = userObj[0].uid;
-  const prescriptionObj = await PrescriptionModel.find({patientId:{$eq:patientId}})
-  if(prescriptionObj.length>0){
-    res.json({
-      error: false,
-      data: prescriptionObj[0],
-      message: "Success"
-    })
-  }
-  else{
-    res.json({
-      error: true,
-      data: [],
-      message: "Success"
-    })
-  }
-  return ;
 }
 
 async function getAttendantViewUserAbnormalData(req: Request, res: Response){
