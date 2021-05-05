@@ -90,7 +90,6 @@ function loginAttendant(req: Request, res: Response) {
           res.status(403).json({error:true,message:"Attendant not verified please verify"})
       }else {
           const attendants = await getAttendantList();
-          console.log(attendants)
           let attendantFound = false;
           if (attendants) {
             attendants.forEach((element: any)=> {
@@ -291,4 +290,4 @@ async function getUsers(usersUid:string[]) {
 }
 
 // functions which are exported
-export  {createAttendant,loginAttendant,addUserToAttendant,getAllUsers};
+export  {createAttendant,loginAttendant,addUserToAttendant,getAllUsers,getAllAttendantUsers};

@@ -1,7 +1,10 @@
 import { Request, Response } from "express";
+import AttendantModel from "../Model/Attendant";
 import DoctorModel from '../Model/Doctor';
 import PrescriptionModel from "../Model/Prescription";
 import UserModel from '../Model/UserModel';
+import { getAllAttendantUsers } from "./AttendantController";
+import { sendSmsInternal } from "./SmsController";
 
 interface IRequestBody {
     patientId : string,
@@ -28,6 +31,14 @@ interface IRequestPrescription {
     count : number
 }
 
+interface IUser {
+    name : string,
+    email: string,
+    uid:string,
+    attendant_uid?:string,
+    phone?:string
+}
+
 // Add a prescription for a particular patient to be added
 // by a given doctor already present in the database
 async function addPrescription(req : Request, res : Response) : Promise<void> {
@@ -42,8 +53,8 @@ async function addPrescription(req : Request, res : Response) : Promise<void> {
         return;
     }
     // Check whether the doctor and user are present in the database or not
-    const isDoctor = checkForDoctor(body.doctorId);
-    const isUser = checkForPatient(body.patientId);
+    const isDoctor = await checkForDoctor(body.doctorId);
+    const isUser  = await checkForPatient(body.patientId);
     if(isDoctor && isUser) {
         // Both the user and the doctor are present in the database
         // Store the prescription in the database
@@ -59,6 +70,8 @@ async function addPrescription(req : Request, res : Response) : Promise<void> {
                 error : false,
                 message : "Prescription added successfully"
             };
+            // call messaging api to send text messages to user and attendant
+            sendSmsOnPrescriptionPost(isUser as any);
             res.status(200).json(success);
             return;
         }
@@ -122,7 +135,7 @@ async function retrievePrescription(req : Request, res : Response) : Promise<voi
 
 async function checkForDoctor(doctorId : string) : Promise<boolean> {
     try {
-        const isDoctor = await DoctorModel.findOne({_id : doctorId});
+        const isDoctor = await DoctorModel.findOne({uid : doctorId});
         return isDoctor ? true : false;
     } catch(err : any) {
         return false;
@@ -131,11 +144,27 @@ async function checkForDoctor(doctorId : string) : Promise<boolean> {
 
 async function checkForPatient(patientId : string) : Promise<boolean> {
     try {
-        const isPatient = await UserModel.findOne({_id : patientId});
-        return isPatient ? true : false;
+        const isPatient = await UserModel.findOne({uid : patientId});
+        return isPatient ? isPatient : false;
     } catch(err : any) {
         return false;
     }
+}
+
+const sendSmsOnPrescriptionPost = async (user: IUser): Promise<any> =>{
+    const {name ,uid, attendant_uid,phone} = user;
+    const message = `Prescription has been posted for ${name} . Please check your dashboard`
+    const attendant_user = await AttendantModel.find({uid:{$eq:attendant_uid}});
+    
+    if (attendant_user[0].phone !== undefined) {
+        
+        sendSmsInternal(attendant_user[0].phone,message);
+    }
+
+    if (phone !== undefined) {
+        sendSmsInternal(phone,message);    
+    }
+    
 }
 
 export {

@@ -162,7 +162,7 @@ async function getUsers (req:Request,res:Response) {
   const {name,uid} = req.body;
   try {
     if (!(name ||uid)) {
-      const query = UserModel.find({}).select('name email uid age');
+      const query = UserModel.find({});
       query.exec((err:Error,users:any)=>{
         if(err){
           res.status(500).json({error:true,message:"some database error"});    
@@ -175,7 +175,6 @@ async function getUsers (req:Request,res:Response) {
 
     if((name)){
       UserModel.find({ name })
-        .select("name email uid")
         .exec((err:Error,users:any)=>{
           if(err){
             res.status(500).json({error:true,message:"some database error"});    
@@ -187,7 +186,6 @@ async function getUsers (req:Request,res:Response) {
     } else if((uid)) {
       
         UserModel.find({ uid })
-          .select("name email uid doctor_uid")
           .exec((err:Error,users:any)=>{
             if(err){
               res.status(500).json({error:true,message:"some database error"});    
