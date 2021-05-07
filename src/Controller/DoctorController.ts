@@ -27,6 +27,34 @@ async function getDoctors(req : Request, res : Response) : Promise<void> {
     }
 }
 
+async function getDoctorByUid(req: Request,res: Response):Promise<void> {
+    try {
+        const {uid} = req.body;
+        const doctor = await DoctorModel.find({uid});
+        if (doctor.length > 0) {
+            // doctor found
+            res.json({
+                error:false,
+                data : doctor[0]
+            })
+            return;
+        }
+
+        if (doctor == undefined || doctor.length == undefined || doctor.length == 0) {
+            res.status(404).json({
+                error:true,
+                message: "Doctor with this id not present"
+            });
+            return;
+        }
+    } catch (error) {
+        res.status(404).json({
+            error:true,
+            message: "Doctor not found"
+        });
+    }
+}
+
 async function getDoctorList() {
     const doctors = await DoctorModel.find({});
     
@@ -36,5 +64,6 @@ async function getDoctorList() {
 
 export {
     getDoctors,
-    getDoctorList
+    getDoctorList,
+    getDoctorByUid
 }

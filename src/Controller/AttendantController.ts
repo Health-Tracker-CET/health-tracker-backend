@@ -166,6 +166,8 @@ async function addUserToAttendant(req: Request, res: Response){
     if(userPresent && attendantPresent){
 
       // check for if user already added to the attendant
+      //      1. get all users under attendant
+      //      2. check if new patient_uid matches with any user present in allAttendantUsers
       const allAttendantUsers = await getAllAttendantUsers(attendant_uid)
       const isUser = await userExists(allAttendantUsers,patient_uid);
       
@@ -223,8 +225,9 @@ async function getAllUsers(req: Request, res: Response){
   const {attendant_uid} = req.body;
   const attendant = await AttendantModel.find({uid:{$eq:attendant_uid}}) 
   if (attendant.length>0){
-    const allAttendantUsers = await getAllAttendantUsers(attendant_uid);
-    const users = await getUsers(allAttendantUsers);
+    // const allAttendantUsers = await getAllAttendantUsers(attendant_uid);
+    // const users = await getUsers(allAttendantUsers);
+    const users = await UserModel.find({attendant_uid});
     res.status(200).json({
       error:false,
       message: "ok",
@@ -249,15 +252,16 @@ async function getAttendantList(){
 }
 
 async function getAllAttendantUsers(uid:string) {
-  const attendant = await AttendantModel.find({uid:{$eq:uid}});
-  return attendant[0].patient_uid;
+  // const attendant = await AttendantModel.find({uid:{$eq:uid}});
+  const attendant = await UserModel.find({attendant_uid:uid});
+  return attendant;
 }
 
-async function userExists(allUsersUid:string[],userUid:string) {
+async function userExists(allUsers:any,userUid:string) {
   let isUser = true  
-  if (allUsersUid.length>0){
-    const res = allUsersUid.find(value=>{
-      return (value===userUid)
+  if (allUsers.length>0){
+    const res = allUsers.find((user:any)=>{
+      return (user.uid===userUid)
     })
     
     if (res) {

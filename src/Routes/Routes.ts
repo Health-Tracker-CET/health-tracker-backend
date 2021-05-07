@@ -3,7 +3,7 @@ import {Router} from 'express';
 import { getBodyData, getAbnormalBodyData } from '../Controller/Controller';
 import { addPrescription, retrievePrescription } from '../Controller/PrescriptionController';
 import  firebaseController  from '../Controller/FirebaseController';
-import { getDoctors } from '../Controller/DoctorController';
+import { getDoctorByUid, getDoctors } from '../Controller/DoctorController';
 import { addUserToAttendant, createAttendant, getAllUsers, loginAttendant } from '../Controller/AttendantController';
 import { sendSms } from '../Controller/SmsController';
 // Init the router var from express
@@ -47,6 +47,10 @@ router.post("/attendant/get-users",getAllUsers)
 
 // Route for sending sms
 router.get("/send",sendSms)
+
+// get doctor by uid
+
+router.post("/doctor/get",getDoctorByUid);
 
 
 // Exports

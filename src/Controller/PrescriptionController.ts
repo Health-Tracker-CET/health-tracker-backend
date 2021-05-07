@@ -71,7 +71,8 @@ async function addPrescription(req : Request, res : Response) : Promise<void> {
                 message : "Prescription added successfully"
             };
             // call messaging api to send text messages to user and attendant
-            sendSmsOnPrescriptionPost(isUser as any);
+            // 2nd parameter for sending origin address for dashboard login
+            sendSmsOnPrescriptionPost(isUser as any,req.get('origin') as string);
             res.status(200).json(success);
             return;
         }
@@ -151,14 +152,15 @@ async function checkForPatient(patientId : string) : Promise<boolean> {
     }
 }
 
-const sendSmsOnPrescriptionPost = async (user: IUser): Promise<any> =>{
+const sendSmsOnPrescriptionPost = async (user: IUser,origin:string): Promise<any> =>{
     const {name ,uid, attendant_uid,phone} = user;
-    const message = `Prescription has been posted for ${name} . Please check your dashboard`
+    const message = `Prescription has been posted for ${name} . Please check your dashboard at ${origin}`
     const attendant_user = await AttendantModel.find({uid:{$eq:attendant_uid}});
+    console.log(attendant_user,phone);
     
-    if (attendant_user[0].phone !== undefined) {
+    if (attendant_user[0]?.phone !== undefined) {
         
-        sendSmsInternal(attendant_user[0].phone,message);
+        sendSmsInternal(attendant_user[0]?.phone,message);
     }
 
     if (phone !== undefined) {

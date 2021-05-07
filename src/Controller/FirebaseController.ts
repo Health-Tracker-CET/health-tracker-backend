@@ -91,6 +91,8 @@ async function createUser(req: Request, res: Response): Promise<void> {
 
 function loginUser(req: Request, res: Response) {
   const { email, password,isDoctor } = req.body;
+  console.log(req.get('origin'));
+  
   firebase
     .auth()
     .signInWithEmailAndPassword(email, password)
